@@ -1,29 +1,30 @@
-# ---------- Stage 1: Build ----------
+# -------- Stage 1: Build --------
 FROM maven:3.9.9-eclipse-temurin-17 AS builder
 
-WORKDIR /app
+WORKDIR /build
 
-# Copy pom first (for caching dependencies)
+# Copy root pom
 COPY pom.xml .
-RUN mvn -B -q -e -DskipTests dependency:go-offline
 
-# Copy source and build
-COPY src app/users/src
-RUN mvn clean package -DskipTests
+# Copy module pom
+COPY users/pom.xml users/pom.xml
 
-# ---------- Stage 2: Run ----------
-FROM eclipse-temurin:17-jre-alpine
+# Download dependencies (cached layer)
+RUN mvn -pl users -am dependency:go-offline -B
+
+# Copy full source
+COPY . .
+
+# Build only users module
+RUN mvn -pl users -am clean package -DskipTests
+
+# -------- Stage 2: Run --------
+FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /app
 
-# Copy built jar
-# COPY --from=builder /app/build/libs/*.jar app.jar
-COPY --from=builder /app/users/target/*.jar app.jar
-
-# Render provides PORT env variable
-ENV PORT=8080
+COPY --from=builder /build/users/target/*.jar app.jar
 
 EXPOSE 8080
 
-# Run the app
 ENTRYPOINT ["java", "-jar", "app.jar"]
