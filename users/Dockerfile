@@ -1,11 +1,9 @@
-FROM maven:3.9.9-eclipse-temurin-17
+FROM eclipse-temurin:17-jdk-jammy
 
 WORKDIR /app
 
-COPY . .
-
-RUN mvn clean package -DskipTests
+COPY target/app.jar app.jar
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "target/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
