@@ -4,7 +4,7 @@ FROM maven:3.9.9-eclipse-temurin-17 AS builder
 WORKDIR /build
 
 # Copy root pom
-COPY pom.xml .
+# COPY pom.xml .
 
 # Copy module pom
 COPY users/pom.xml users/pom.xml
