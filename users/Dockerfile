@@ -8,7 +8,7 @@ COPY pom.xml .
 RUN mvn -B -q -e -DskipTests dependency:go-offline
 
 # Copy source and build
-COPY src ./src
+COPY src app/users/src
 RUN mvn clean package -DskipTests
 
 # ---------- Stage 2: Run ----------
